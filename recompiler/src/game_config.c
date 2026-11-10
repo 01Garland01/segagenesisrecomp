@@ -386,6 +386,8 @@ bool game_config_load(GameConfig *cfg, const char *path) {
         cfg->allow_68020_branch       = toml_bool_or(game, "allow_68020_branch", false);
         cfg->jump_table_autodiscovery = toml_bool_or(game, "jump_table_autodiscovery", false);
         cfg->function_aliases         = toml_bool_or(game, "function_aliases", false);
+        cfg->cycle_drift_correction   = toml_bool_or(game, "cycle_drift_correction", false);
+        cfg->pea_redirect             = toml_bool_or(game, "pea_redirect", false);
         cfg->runtime_table_promotions = toml_bool_or(game, "runtime_table_promotions", false);
 
         /* code_addrs_file: flat text list (one hex instruction-start addr per

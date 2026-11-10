@@ -18,6 +18,8 @@ typedef struct GenesisNativeCallFrame {
 } GenesisNativeCallFrame;
 extern GenesisNativeCallFrame *g_recomp_native_frame;
 void recomp_native_drain(GenesisNativeCallFrame *);
+void recomp_native_drain_pea(GenesisNativeCallFrame *, int entry_depth);
+extern int g_pea_redirect_depth;
 void recomp_tail_call(uint32_t);
 
 /* Only generated, proven function symbols use this entry. Keeping the frame
@@ -25,10 +27,12 @@ void recomp_tail_call(uint32_t);
  * pending tails, nested IRQs, stack skips or a fiber suspension. */
 #define RECOMP_CALL_NATIVE(fn) do { \
     GenesisNativeCallFrame _native_frame={0,0,g_recomp_native_frame,0}; \
+    int _native_pea_depth=g_pea_redirect_depth; \
     g_recomp_native_frame=&_native_frame; \
     ++g_native_direct_calls; \
     (fn)(); \
     if(_native_frame.pending)recomp_native_drain(&_native_frame); \
+    if(g_pea_redirect_depth>_native_pea_depth)recomp_native_drain_pea(&_native_frame,_native_pea_depth); \
     g_recomp_native_frame=_native_frame.prev; \
 } while(0)
 

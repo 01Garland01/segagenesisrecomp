@@ -268,6 +268,14 @@ typedef struct {
      * validates its candidate alias set. The analyzer still reports candidates
      * when disabled; established function boundaries remain unchanged. */
     bool           function_aliases;
+    /* Opt-in runtime correction of the static cycle stamps for Bcc/DBcc/Scc
+     * and register-count shifts. Changes VBlank and audio timing, so it stays
+     * off unless a game has been validated with it. Default: false. */
+    bool           cycle_drift_correction;
+    /* Opt-in handling of `pea (ABS).l` used as a return redirect. Changes
+     * function discovery and every RTS, so it stays off unless a game has
+     * been validated with it. Default: false. */
+    bool           pea_redirect;
     /* Widescreen (16:9) injection sites, from [[widescreen_site]] in game.toml.
      * Consumed at codegen time (not emitted to the runtime layout). Empty =>
      * no widescreen injection for this game. */

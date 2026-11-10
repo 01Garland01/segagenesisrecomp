@@ -194,6 +194,12 @@ extern int *g_rte_pending_ptr;
  * interrupted chain's value before resuming it. */
 extern int g_split_sp_popped;
 
+/* Pending PEA-then-RTS redirects (see code_generator.c). Guest control
+ * state like the split carry: it belongs to the running fiber. */
+#define PEA_REDIRECT_MAX 32
+extern int g_pea_redirect_depth;
+extern uint32_t g_pea_redirect_stack[PEA_REDIRECT_MAX];
+
 /* ---- Early return (addq.l #4,sp + rts pattern) ---- */
 /* 68K code uses "addq.l #4,sp" to discard a return address, then "rts" to
  * return to the caller's caller (skipping the rest of the current routine).

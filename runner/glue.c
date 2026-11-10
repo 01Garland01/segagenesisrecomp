@@ -1653,6 +1653,8 @@ void glue_restart_game_fiber(uint32_t resume_pc)
     s_game_stack_top = 0;
     s_game_stack_last_report = 0;
     g_rte_pending = 0;
+    g_split_sp_popped = 0;
+    g_pea_redirect_depth = 0;
     s_yield_site = GLUE_YIELD_NONE;
 
     /* Reset in place: same engine-owned stack mapping, so the fiber's stack
@@ -2563,6 +2565,10 @@ typedef struct GlueRbSched {
      * in cpu/sched/ram at step 1 in 5 of 149 probe passes. */
     int32_t  split_sp_popped;
     int32_t  native_pc_scope,native_instruction_open,native_vblank_completed;
+    /* Generated PEA-redirect stack; the snapshotted fiber's frames hold
+     * entry depths that index it. */
+    int32_t  pea_redirect_depth;
+    uint32_t pea_redirect_stack[PEA_REDIRECT_MAX];
 } GlueRbSched;
 
 size_t glue_rb_sched_save(void *dst, size_t cap)
@@ -2619,6 +2625,8 @@ size_t glue_rb_sched_save(void *dst, size_t cap)
     s.native_pc_scope=s_native_pc_scope;
     s.native_instruction_open=s_native_instruction_open;
     s.native_vblank_completed=s_native_vblank_completed;
+    s.pea_redirect_depth   = g_pea_redirect_depth;
+    memcpy(s.pea_redirect_stack, g_pea_redirect_stack, sizeof s.pea_redirect_stack);
     memcpy(dst, &s, sizeof s);
     return sizeof s;
 }
@@ -2679,6 +2687,8 @@ int glue_rb_sched_load(const void *src, size_t len)
     s_native_pc_scope=s.native_pc_scope;
     s_native_instruction_open=s.native_instruction_open;
     s_native_vblank_completed=s.native_vblank_completed;
+    g_pea_redirect_depth        = s.pea_redirect_depth;
+    memcpy(g_pea_redirect_stack, s.pea_redirect_stack, sizeof g_pea_redirect_stack);
     return 1;
 }
 
